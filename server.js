@@ -3,11 +3,19 @@ const express = require('express');
 const cors = require('cors');
 const admin = require('firebase-admin');
 const path = require('path');
-// require('dotenv').config(); // Uncomment if you set up a .env file
 
 // --- Firebase Admin SDK Initialization ---
 try {
-    const serviceAccount = require('./serviceAccountKey.json');
+    let serviceAccount;
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+        // For production on Render, parse from environment variable
+        serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+        console.log("Initializing Firebase Admin SDK from environment variable.");
+    } else {
+        // For local development, load from file
+        serviceAccount = require('./serviceAccountKey.json');
+        console.log("Initializing Firebase Admin SDK from local serviceAccountKey.json.");
+    }
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount)
       // databaseURL: "https://<YOUR_PROJECT_ID>.firebaseio.com" // If needed
